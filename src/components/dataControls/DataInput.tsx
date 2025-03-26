@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 
-const DataInput = () => {
+interface DataInputProps {
+  onDataChange: (data: string | null) => void;
+}
+
+const DataInput: React.FC<DataInputProps> = ({ onDataChange }) => {
   const [isData, setData] = useState("");
   const [error, setError] = useState("");
 
@@ -9,8 +13,11 @@ const DataInput = () => {
     setData(value);
 
     // Validate that input contains only numbers separated by commas
-    const isValid = /^(\d+)(,\d+)*$/.test(value); // Regular expression to match numbers separated by commas
+    const isValid = /^(\d+)(,\d+)*$/.test(value);
     setError(isValid ? "" : "Please enter numbers separated by commas.");
+
+    // If valid, send data to parent; otherwise, send null
+    onDataChange(isValid ? value : null);
   };
 
   return (
@@ -20,13 +27,12 @@ const DataInput = () => {
         type="text"
         value={isData}
         onChange={handleData}
-        className="bg-white rounded-md mt-2 mb-2 w-60" // Adjusted width to make it smaller
+        className="bg-white rounded-md mt-2 mb-2 w-60"
       />
       <p className="text-gray-500 text-start text-sm">
         Write the input by separating numbers with commas (e.g., 1,2,3)
       </p>
-      {error && <p className="text-red-500 text-sm">{error}</p>}{" "}
-      {/* Display error message */}
+      {error && <p className="text-red-500 text-sm">{error}</p>}
     </div>
   );
 };

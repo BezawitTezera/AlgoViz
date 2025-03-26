@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 // Type to represent the sample data categories
 type sampleDataTypes = "Random" | "Sorted" | "Reversed";
@@ -10,24 +10,31 @@ const sampleData: Record<sampleDataTypes, number[][]> = {
   Reversed: [[7, 4, 1, 0, -1]],
 };
 
-const DataGenerator = () => {
+interface DataGeneratorProps {
+  onDataChange: (data: string | null) => void;
+}
+
+const DataGenerator: React.FC<DataGeneratorProps> = ({ onDataChange }) => {
   const [selectedSample, setSelectedSample] =
     useState<sampleDataTypes>("Random");
-  const [currentData, setCurrentData] = useState<number[][]>(
-    sampleData[selectedSample]
-  );
+
+  // Derive currentData from selectedSample
+  const currentData = sampleData[selectedSample];
+
+  // Format data as string for display
+  const formatDataForDisplay = (data: number[][]) => data.flat().join(", ");
 
   // Handle change in selected sample type
   const handleSampleDataType = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selected = e.target.value as sampleDataTypes; // Type assertion
     setSelectedSample(selected);
-    setCurrentData(sampleData[selected]);
+    onDataChange(formatDataForDisplay(sampleData[selected]));
   };
 
-  // Convert the 2D array into a single line of comma-separated values
-  const formatDataForDisplay = (data: number[][]) => {
-    return data.flat().join(", "); // Flatten the 2D array and join values with commas
-  };
+  // Send initial data when the component mounts
+  useEffect(() => {
+    onDataChange(formatDataForDisplay(sampleData[selectedSample]));
+  }, []); // Empty dependency means it runs once on mount
 
   return (
     <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-lg">
@@ -46,7 +53,7 @@ const DataGenerator = () => {
       </div>
 
       <div className="mt-4 text-start">
-        <h3 className="text-lg mb-2 ">Selected Data:</h3>
+        <h3 className="text-lg mb-2">Selected Data:</h3>
         <p className="text-gray-700">{formatDataForDisplay(currentData)}</p>
       </div>
     </div>

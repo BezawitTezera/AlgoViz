@@ -33,7 +33,7 @@ type AlgorithmCategoryKey =
   | "Sorting"
   | "Tree";
 
-type AlgorithmName =
+export type AlgorithmName =
   | "nQueens"
   | "sudokuSolver"
   | "Fibonacci"
@@ -116,22 +116,36 @@ const algorithmMap: Record<AlgorithmName, AlgorithmFunction> = {
   bstInsertion,
 };
 
-const AlgorithmSelector: React.FC = () => {
+interface AlgorithmSelectorProps {
+  onAlgorithmSelect: (algo: AlgorithmName | null) => void; // Ensure it allows null
+}
+
+const AlgorithmSelector: React.FC<AlgorithmSelectorProps> = ({
+  onAlgorithmSelect,
+}) => {
   const [algorithmType, setAlgorithmType] =
     useState<AlgorithmCategoryKey>("All Types");
   const [selectedAlgorithm, setSelectedAlgorithm] =
     useState<AlgorithmName | null>(null);
 
+  // Handle selection of algorithm type
+  const handleAlgorithmType = (algo: AlgorithmCategoryKey) => {
+    setAlgorithmType(algo);
+    setSelectedAlgorithm(null); // Reset selected algorithm
+    onAlgorithmSelect(null); // Pass null to signify no algorithm selected
+  };
+
+  // Handle selection of specific algorithm
   const handleAlgorithmSelection = (algo: AlgorithmName) => {
     setSelectedAlgorithm(algo);
-    console.log(`Selected Algorithm: ${algo}`);
+    onAlgorithmSelect(algo); // Pass the selected algorithm
   };
 
   return (
     <div className="mt-4">
       {/* Algorithm Type Selection */}
       <h2 className="text-white text-xl mt-4 mb-2">Algorithm Type</h2>
-      <Listbox value={algorithmType} onChange={setAlgorithmType}>
+      <Listbox value={algorithmType} onChange={handleAlgorithmType}>
         <div className="relative">
           <Listbox.Button className="relative w-full cursor-pointer rounded-lg bg-white py-2 pl-3 pr-10 text-left shadow-md border border-gray-300">
             <span className="block truncate">{algorithmType}</span>
@@ -186,7 +200,7 @@ const AlgorithmSelector: React.FC = () => {
             </span>
           </Listbox.Button>
 
-          <Listbox.Options className="absolute mt-1 w-full overflow-auto rounded-md bg-white shadow-lg max-h-60 border border-gray-200">
+          <Listbox.Options className="absolute mt-1 w-full overflow-auto rounded-md bg-white shadow-lg max-h-60 border border-gray-200 z-50">
             {algorithmCategories[algorithmType].map((algo) => (
               <Listbox.Option
                 key={algo}
